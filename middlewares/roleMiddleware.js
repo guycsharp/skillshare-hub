@@ -1,8 +1,10 @@
-exports.restrictTo = (...roles) => {
+const restrictTo = (role) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
+    if (!req.user || req.user.role !== role) {
+      return res.status(403).json({ message: 'Forbidden, admin access required' });
     }
     next();
   };
 };
+
+module.exports = { restrictTo };

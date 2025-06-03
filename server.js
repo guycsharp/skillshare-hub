@@ -7,7 +7,7 @@ const skillRoutes = require('./routes/skills');
 
 const app = express();
 
-// Middleware to parse JSON requests
+// Middleware to parse JSON
 app.use(express.json());
 
 // Connect to MongoDB
@@ -18,7 +18,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/skills', skillRoutes);
 
-// Global error handling middleware
+// Global Error Handling Middleware
 app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
