@@ -10,7 +10,7 @@ router.route('/')
   .post(protect, restrictTo('learner'), createBooking);
 
 router.route('/:id')
-  .put(protect, restrictTo('mentor'), updateBooking)
+  .put(protect, restrictTo('admin', 'mentor'), updateBooking) // ✅ Now allows both roles
   .delete(protect, restrictTo('learner'), deleteBooking);
 
 module.exports = router;
