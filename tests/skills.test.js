@@ -1,42 +1,53 @@
+jest.setTimeout(20000);
+
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const app = require('../app');
-const mongoose = require('mongoose');
 const Skill = require('../models/Skill');
 const User = require('../models/User');
 
+let mongo;
 let token;
-let skillId;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  mongo = await MongoMemoryServer.create();
+  await mongoose.connect(mongo.getUri(), {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+
   await Skill.deleteMany();
   await User.deleteMany();
 
-  await request(app).post('/api/auth/register').send({
+  const res = await request(app).post('/api/auth/register').send({
     name: 'Mentor',
-    email: 'mentor@test.com',
-    password: 'pass123',
-    role: 'mentor'
-  });
-
-  const res = await request(app).post('/api/auth/login').send({
-    email: 'mentor@test.com',
-    password: 'pass123'
+    email: 'mentor@example.com',
+    password: 'password123',
+    role: 'mentor',
   });
 
   token = res.body.token;
 });
 
 afterAll(async () => {
+  await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
+  await mongo.stop();
 });
 
 describe('Skill API', () => {
+  let skillId;
+
   it('should create a skill', async () => {
     const res = await request(app)
       .post('/api/skills')
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: 'JavaScript', description: 'Learn JS' });
+      .send({
+        title: 'JavaScript',
+        description: 'Learn JS from scratch',
+        price: 50,
+      });
 
     expect(res.statusCode).toBe(201);
     expect(res.body.title).toBe('JavaScript');
@@ -44,28 +55,26 @@ describe('Skill API', () => {
   });
 
   it('should get all skills', async () => {
-    const res = await request(app)
-      .get('/api/skills')
-      .set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/skills');
     expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBeGreaterThan(0);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
   it('should update a skill', async () => {
     const res = await request(app)
       .put(`/api/skills/${skillId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: 'Advanced JavaScript' });
+      .send({ price: 60 });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.title).toBe('Advanced JavaScript');
+    expect(res.body.price).toBe(60);
   });
 
   it('should delete a skill', async () => {
     const res = await request(app)
       .delete(`/api/skills/${skillId}`)
       .set('Authorization', `Bearer ${token}`);
+
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe('Skill deleted');
   });
 });

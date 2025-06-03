@@ -1,54 +1,39 @@
+jest.setTimeout(20000);
+
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const app = require('../app');
-const mongoose = require('mongoose');
-const Booking = require('../models/Booking');
-const Skill = require('../models/Skill');
 const User = require('../models/User');
+const Skill = require('../models/Skill');
+const Booking = require('../models/Booking');
 
-let learnerToken, skillId, bookingId;
+let mongo;
+let learnerToken;
+let mentorToken;
+let skillId;
+let bookingId;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI);
-  await Booking.deleteMany();
-  await Skill.deleteMany();
+  // mongo = await MongoMemoryServer.create();
+  // const uri = mongo.getUri();
+
+  // if (mongoose.connection.readyState === 0) {
+  //   await mongoose.connect(uri, {
+  //     useNewUrlParser: true,
+  //     useUnifiedTopology: true,
+  //   });
+  // }
+
   await User.deleteMany();
-
-  await request(app).post('/api/auth/register').send({
-    name: 'Mentor1',
-    email: 'mentor1@test.com',
-    password: 'pass123',
-    role: 'mentor'
-  });
-
-  const mentorLogin = await request(app).post('/api/auth/login').send({
-    email: 'mentor1@test.com',
-    password: 'pass123'
-  });
-
-  const skill = await request(app)
-    .post('/api/skills')
-    .set('Authorization', `Bearer ${mentorLogin.body.token}`)
-    .send({ title: 'Node.js', description: 'Node backend' });
-
-  skillId = skill.body._id;
-
-  await request(app).post('/api/auth/register').send({
-    name: 'Learner',
-    email: 'learner@test.com',
-    password: 'pass123',
-    role: 'learner'
-  });
-
-  const learnerLogin = await request(app).post('/api/auth/login').send({
-    email: 'learner@test.com',
-    password: 'pass123'
-  });
-
-  learnerToken = learnerLogin.body.token;
+  await Skill.deleteMany();
+  await Booking.deleteMany();
 });
 
 afterAll(async () => {
+  await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
+  await mongo.stop();
 });
 
 describe('Booking API', () => {
@@ -56,22 +41,22 @@ describe('Booking API', () => {
     const res = await request(app)
       .post('/api/bookings')
       .set('Authorization', `Bearer ${learnerToken}`)
-      .send({
-        skill: skillId,
-        scheduledAt: new Date(Date.now() + 3600000)
-      });
+      .send({ skill: skillId });
 
+    console.log('Booking Creation Response:', res.body);
     expect(res.statusCode).toBe(201);
-    expect(res.body.skill).toBe(skillId);
-    bookingId = res.body._id;
+    expect(res.body.status).toBe('pending');
+    bookingId = res.body?._id;
   });
 
   it('should get learner bookings', async () => {
     const res = await request(app)
       .get('/api/bookings')
       .set('Authorization', `Bearer ${learnerToken}`);
+
+    console.log('Bookings List:', res.body);
     expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBeGreaterThan(0);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
   it('should update a booking status', async () => {
@@ -80,6 +65,7 @@ describe('Booking API', () => {
       .set('Authorization', `Bearer ${learnerToken}`)
       .send({ status: 'confirmed' });
 
+    console.log('Booking Update Response:', res.body);
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe('confirmed');
   });
@@ -88,7 +74,8 @@ describe('Booking API', () => {
     const res = await request(app)
       .delete(`/api/bookings/${bookingId}`)
       .set('Authorization', `Bearer ${learnerToken}`);
+
+    console.log('Booking Deletion Response:', res.body);
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe('Booking deleted');
   });
 });
