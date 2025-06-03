@@ -7,10 +7,10 @@ const router = express.Router();
 
 router.route('/')
   .get(protect, restrictTo('learner'), getBookings)
-  .post(protect, restrictTo('learner'), createBooking);
+  .post(protect, restrictTo('learner','admin', 'mentor'), createBooking);
 
 router.route('/:id')
   .put(protect, restrictTo('admin', 'mentor'), updateBooking) // ✅ Now allows both roles
-  .delete(protect, restrictTo('learner'), deleteBooking);
+  .delete(protect, restrictTo('learner','admin', 'mentor'), deleteBooking);
 
 module.exports = router;
