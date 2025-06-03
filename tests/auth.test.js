@@ -6,19 +6,19 @@ const User = require('../models/User');
 
 let mongoServer;
 
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  await mongoose.connect(mongoServer.getUri(), {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-});
+// beforeAll(async () => {
+//   mongoServer = await MongoMemoryServer.create();
+//   await mongoose.connect(mongoServer.getUri(), {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   });
+// });
 
-afterAll(async () => {
-  await mongoose.connection.dropDatabase();
-  await mongoose.connection.close();
-  await mongoServer.stop();
-});
+// afterAll(async () => {
+//   await mongoose.connection.dropDatabase();
+//   await mongoose.connection.close();
+//   await mongoServer.stop();
+// });
 
 beforeEach(async () => {
   await User.deleteMany();

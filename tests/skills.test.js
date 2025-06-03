@@ -10,31 +10,31 @@ const User = require('../models/User');
 let mongo;
 let token;
 
-beforeAll(async () => {
-  mongo = await MongoMemoryServer.create();
-  await mongoose.connect(mongo.getUri(), {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+// beforeAll(async () => {
+//   mongo = await MongoMemoryServer.create();
+//   await mongoose.connect(mongo.getUri(), {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   });
 
-  await Skill.deleteMany();
-  await User.deleteMany();
+//   await Skill.deleteMany();
+//   await User.deleteMany();
 
-  const res = await request(app).post('/api/auth/register').send({
-    name: 'Mentor',
-    email: 'mentor@example.com',
-    password: 'password123',
-    role: 'mentor',
-  });
+//   const res = await request(app).post('/api/auth/register').send({
+//     name: 'Mentor',
+//     email: 'mentor@example.com',
+//     password: 'password123',
+//     role: 'mentor',
+//   });
 
-  token = res.body.token;
-});
+//   token = res.body.token;
+// });
 
-afterAll(async () => {
-  await mongoose.connection.dropDatabase();
-  await mongoose.connection.close();
-  await mongo.stop();
-});
+// afterAll(async () => {
+//   await mongoose.connection.dropDatabase();
+//   await mongoose.connection.close();
+//   await mongo.stop();
+// });
 
 describe('Skill API', () => {
   let skillId;

@@ -14,27 +14,27 @@ let mentorToken;
 let skillId;
 let bookingId;
 
-beforeAll(async () => {
-  // mongo = await MongoMemoryServer.create();
-  // const uri = mongo.getUri();
+// beforeAll(async () => {
+//   // mongo = await MongoMemoryServer.create();
+//   // const uri = mongo.getUri();
 
-  // if (mongoose.connection.readyState === 0) {
-  //   await mongoose.connect(uri, {
-  //     useNewUrlParser: true,
-  //     useUnifiedTopology: true,
-  //   });
-  // }
+//   // if (mongoose.connection.readyState === 0) {
+//   //   await mongoose.connect(uri, {
+//   //     useNewUrlParser: true,
+//   //     useUnifiedTopology: true,
+//   //   });
+//   // }
 
-  await User.deleteMany();
-  await Skill.deleteMany();
-  await Booking.deleteMany();
-});
+//   await User.deleteMany();
+//   await Skill.deleteMany();
+//   await Booking.deleteMany();
+// });
 
-afterAll(async () => {
-  await mongoose.connection.dropDatabase();
-  await mongoose.connection.close();
-  await mongo.stop();
-});
+// afterAll(async () => {
+//   await mongoose.connection.dropDatabase();
+//   await mongoose.connection.close();
+//   await mongo.stop();
+// });
 
 describe('Booking API', () => {
   it('should create a booking', async () => {

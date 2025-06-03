@@ -7,18 +7,20 @@ beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
 
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  }
-
-  await mongoose.connection.db.dropDatabase();
+  await mongoose.disconnect(); // Just in case a prior connection exists
+  await mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 });
 
 afterAll(async () => {
-  await mongoose.connection.dropDatabase();
-  await mongoose.connection.close();
-  await mongoServer.stop();
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.dropDatabase();
+    await mongoose.connection.close();
+  }
+
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 });
