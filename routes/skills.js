@@ -7,10 +7,10 @@ const router = express.Router();
 
 router.route('/')
   .get(getSkills)
-  .post(protect, restrictTo('mentor'), createSkill);
+  .post(protect, restrictTo('admin'), createSkill);
 
 router.route('/:id')
-  .put(protect, restrictTo('mentor'), updateSkill)
-  .delete(protect, restrictTo('mentor'), deleteSkill);
+  .put(protect, restrictTo('admin'), updateSkill)
+  .delete(protect, restrictTo('admin'), deleteSkill);
 
 module.exports = router;
